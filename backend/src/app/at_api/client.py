@@ -9,16 +9,16 @@ import config
 
 class ATClient:
     def __init__(self): 
-        self.session = httpx.Client(base_url="https://api.at.govt.nz", headers={"Ocp-Apim-Subscription-Key": config.AT_API_KEY})
+        self.session = httpx.AsyncClient(base_url="https://api.at.govt.nz", headers={"Ocp-Apim-Subscription-Key": config.AT_API_KEY})
     
-    def close(self):
-        self.session.close()
+    async def close(self):
+        await self.session.aclose()
 
-    def _get_realtime_data(self, endpoint: str) -> list:
-        response = self.session.get(endpoint)
+    async def _get_realtime_data(self, endpoint: str) -> list:
+        response = await self.session.get(endpoint)
         response.raise_for_status()
         data = response.json()
         return data.get("response").get("entity")
     
-    def get_vehicle_locations(self) -> list:
-        return self._get_realtime_data("/realtime/legacy/vehiclelocations")
+    async def get_vehicle_locations(self) -> list:
+        return await self._get_realtime_data("/realtime/legacy/vehiclelocations")
