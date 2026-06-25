@@ -1,4 +1,4 @@
-from supabase import create_client, Client
+from supabase import acreate_client, AsyncClient
 
 import sys
 from pathlib import Path
@@ -8,5 +8,5 @@ if parent_dir not in sys.path:
 
 import config
 
-def create_supabase_client() -> Client:
-    return create_client(config.SUPABASE_URL, config.SUPABASE_SECRET_KEY)
+async def create_supabase_client() -> AsyncClient:
+    return await acreate_client(config.SUPABASE_URL, config.SUPABASE_SECRET_KEY)

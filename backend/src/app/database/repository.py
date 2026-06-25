@@ -1,14 +1,14 @@
-from supabase import Client
+from supabase import AsyncClient
 
 class ATRepository:
-    def __init__(self, supabase_client: Client):
+    def __init__(self, supabase_client: AsyncClient):
         self.database = supabase_client
     
-    def upsert_vehicle_locations(self, data: list):
-        response = (self.database.table("Vehicle Positions")
+    async def upsert_vehicle_locations(self, data: list):
+        response = await (self.database.table("Vehicle Positions")
                     .upsert(data).execute())
         
-    def get_vehicle_locations(self) -> list:
-        response = (self.database.table("Vehicle Positions")
+    async def get_vehicle_locations(self) -> list:
+        response = await (self.database.table("Vehicle Positions")
                     .select("*").execute())
         return response.data
