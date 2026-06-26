@@ -40,7 +40,7 @@ export default function Map() {
     });
 
     return () => {
-      mapRef.current.remove();
+      if (mapRef.current) mapRef.current.remove();
       if (wsRef.current) wsRef.current.close();
     }
   }, []);
@@ -81,7 +81,9 @@ export default function Map() {
         coordinates: [bus["vehicle_longitude"], bus["vehicle_latitude"]]
       }
     }));
-    mapRef.current.getSource('buses-source').setData(geojsonRef.current);
+    if (mapRef.current.getSource('buses-source')) {
+      mapRef.current.getSource('buses-source').setData(geojsonRef.current);
+    }
   };
 
   return (
