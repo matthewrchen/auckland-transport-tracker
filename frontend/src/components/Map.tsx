@@ -8,6 +8,11 @@ import '../App.css'
 export default function Map() {
   const mapRef = useRef();
   const mapContainerRef = useRef();
+  const wsRef = useRef();
+  const geojsonRef = useRef({
+    type: 'FeatureCollection',
+    features: []
+  });
 
   useEffect(() => {
     mapRef.current = new mapboxgl.Map({
@@ -18,10 +23,66 @@ export default function Map() {
       zoom: 11.4
     });
 
+    mapRef.current.on('load', () => {
+      mapRef.current.addSource('buses-source', {type: 'geojson', data: geojsonRef.current});
+      mapRef.current.addLayer({
+        id: 'buses-layer',
+        type: 'circle',
+        source: 'buses-source',
+        paint: {
+          'circle-radius': 8,
+          'circle-color': '#007cbf',
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#fff'
+        }
+      });
+      connectWebSocket();
+    });
+
     return () => {
-      mapRef.current.remove()
+      mapRef.current.remove();
+      if (wsRef.current) wsRef.current.close();
     }
-  });
+  }, []);
+
+  const connectWebSocket = () => {
+    const ws = new WebSocket('ws://127.0.0.1:8000/ws/buses');
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      console.log('[FRONTEND] Connected to backend');
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const rawPayload = JSON.parse(event.data);
+        updateBuses(rawPayload)
+      } catch (error) {
+        console.error('[FRONTEND] Error parsing API frame: ', error);
+      }
+    };
+
+    ws.onclose = (e) => {
+      console.log(`[FRONTEND] Websocket closed. Code: ${e.code}`);
+    }
+
+    ws.onerror = (err) => {
+      console.error('[FRONTEND] Websocket encountered error: ', err);
+      ws.close();
+    }
+  };
+
+  const updateBuses = (busData) => {
+    const buses = busData["buses"]
+    geojsonRef.current.features = buses.map(bus => ({
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [bus["vehicle_longitude"], bus["vehicle_latitude"]]
+      }
+    }));
+    mapRef.current.getSource('buses-source').setData(geojsonRef.current);
+  };
 
   return (
     <>
