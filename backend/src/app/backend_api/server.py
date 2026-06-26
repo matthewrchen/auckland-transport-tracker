@@ -35,12 +35,14 @@ async def vehicle_polling(app: FastAPI):
             raw_data = await app.state.at_client.get_vehicle_locations()
             transformed_data = transformers.transformer.parse_vehicle_location_data(raw_data)
 
-            print("[POLLER] Upsert to database")
+            print("[POLLER] Updating database")
             await app.state.repository.upsert_vehicle_locations(transformed_data)
 
             print("[POLLER] Sending data to users")
             payload = {"type": "live_update", "buses": transformed_data}
             await websocket_manager.broadcast_to_all(payload)
+
+            await app.state.repository.clean_vehicle_locations()
         except asyncio.CancelledError:
             break  
         except Exception as e:

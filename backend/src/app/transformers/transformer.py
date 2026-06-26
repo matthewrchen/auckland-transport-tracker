@@ -1,5 +1,8 @@
+from datetime import datetime, timezone
+
 def parse_vehicle_location_data(data: list) -> list:
     parsed_data = []
+    update_time = datetime.now(timezone.utc).isoformat()
     for vehicle in data:
         parsed_vehicle = {
             "id": int(vehicle.get("id")), 
@@ -7,7 +10,8 @@ def parse_vehicle_location_data(data: list) -> list:
             "vehicle_label": vehicle.get("vehicle", {}).get("vehicle", {}).get("label"), 
             "vehicle_license_plate": vehicle.get("vehicle", {}).get("vehicle", {}).get("license_plate"), 
             "vehicle_longitude": float(vehicle.get("vehicle", {}).get("position", {}).get("longitude")), 
-            "vehicle_latitude": float(vehicle.get("vehicle", {}).get("position", {}).get("latitude"))
+            "vehicle_latitude": float(vehicle.get("vehicle", {}).get("position", {}).get("latitude")),
+            "last_updated": update_time
         }
         parsed_data.append(parsed_vehicle)
     return parsed_data
