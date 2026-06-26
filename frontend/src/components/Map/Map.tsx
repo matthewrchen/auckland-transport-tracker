@@ -3,7 +3,7 @@ import { useRef, useEffect, useState } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
-import '../App.css'
+import styles from './Map.module.css'
 
 export default function Map() {
   const mapRef = useRef();
@@ -88,7 +88,7 @@ export default function Map() {
 
   return (
     <>
-      <div id='map-container' ref={mapContainerRef}></div>
+      <div ref={mapContainerRef} className={styles.map}></div>
     </>
   );
 }
