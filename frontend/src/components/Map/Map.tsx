@@ -16,6 +16,8 @@ export default function Map() {
     features: []
   });
 
+  const [modalOpen, setModal] = useState(false);
+
   const [busId, setBusId] = useState(null);
   const [busLabel, setBusLabel] = useState(null);
   const [busLicensePlate, setBusLicensePlate] = useState(null);
@@ -49,6 +51,8 @@ export default function Map() {
           setBusId(feature.feature.properties['busId'])
           setBusLabel(feature.feature.properties['busLabel'])
           setBusLicensePlate(feature.feature.properties['busLicensePlate'])
+
+          setModal(true);
         }
       });
 
@@ -110,7 +114,8 @@ export default function Map() {
   return (
     <>
       <div ref={mapContainerRef} className={styles.map}></div>
-      <VehicleInfoModal vehicleID={busId} vehicleLabel={busLabel} vehicleLicensePlate={busLicensePlate} />
+
+      {modalOpen && <VehicleInfoModal vehicleID={busId} vehicleLabel={busLabel} vehicleLicensePlate={busLicensePlate} closeModal={() => setModal(false)} />}
     </>
   );
 }
