@@ -3,6 +3,8 @@ import { useRef, useEffect, useState } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
+import VehicleInfoModal from '../VehicleInfoModal/VehicleInfoModal'
+
 import styles from './Map.module.css'
 
 export default function Map() {
@@ -13,6 +15,10 @@ export default function Map() {
     type: 'FeatureCollection',
     features: []
   });
+
+  const [busId, setBusId] = useState(null);
+  const [busLabel, setBusLabel] = useState(null);
+  const [busLicensePlate, setBusLicensePlate] = useState(null);
 
   useEffect(() => {
     mapRef.current = new mapboxgl.Map({
@@ -36,6 +42,16 @@ export default function Map() {
           'circle-stroke-color': '#fff'
         }
       });
+      mapRef.current.addInteraction('click', {
+        type: 'click',
+        target: { layerId: 'buses-layer' },
+        handler: (feature) => {
+          setBusId(feature.feature.properties['busId'])
+          setBusLabel(feature.feature.properties['busLabel'])
+          setBusLicensePlate(feature.feature.properties['busLicensePlate'])
+        }
+      });
+
       connectWebSocket();
     });
 
@@ -73,12 +89,17 @@ export default function Map() {
   };
 
   const updateBuses = (busData) => {
-    const buses = busData["buses"]
+    const buses = busData['buses']
     geojsonRef.current.features = buses.map(bus => ({
       type: 'Feature',
       geometry: {
         type: 'Point',
-        coordinates: [bus["vehicle_longitude"], bus["vehicle_latitude"]]
+        coordinates: [bus['vehicle_longitude'], bus['vehicle_latitude']]
+      },
+      properties: {
+        busId: bus['vehicle_id'],
+        busLabel: bus['vehicle_label'],
+        busLicensePlate: bus['vehicle_license_plate']
       }
     }));
     if (mapRef.current.getSource('buses-source')) {
@@ -89,6 +110,7 @@ export default function Map() {
   return (
     <>
       <div ref={mapContainerRef} className={styles.map}></div>
+      <VehicleInfoModal vehicleID={busId} vehicleLabel={busLabel} vehicleLicensePlate={busLicensePlate} />
     </>
   );
 }
