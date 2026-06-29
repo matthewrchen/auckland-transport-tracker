@@ -34,7 +34,13 @@ def parse_vehicle_location_data(data: list) -> list:
                 "raw_data": nested_entity
             }
         elif (entity.get("alert")):
-            nested_entity = entity.get("alert")
+            nested_entity = entity["alert"]
+            parsed_entity = {
+                "alert_id": entity["id"],
+                "updated_at": update_time,
+                "raw_data": nested_entity
+            }
+
         
         parsed_data.append(parsed_entity)
     return parsed_data
