@@ -13,9 +13,11 @@ def parse_vehicle_location_data(data: list) -> list:
             # TODO add more fallbacks later
 
             nested_entity = entity["vehicle"]
-            # If entity doesn't have label and license plate, pass
-            # Right now I am considering label and license plate, noticed that inactive vehicles don't have a trip (confirm this later)
-            if (not nested_entity["vehicle"]["label"] and not nested_entity["vehicle"]["license_plate"]):
+            # From observation two types of inactive vehicles:
+            # 1. vehicles with no label and license plate
+            # 2. vehicles with no trip id (also includes 1.), however did see bus without trip id moving
+            # Note: could try occupancy status but what about old bus
+            if (not nested_entity.get("trip")):
                 continue
             parsed_entity = {
                 "vehicle_id": entity["id"],
