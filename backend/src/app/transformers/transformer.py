@@ -1,7 +1,18 @@
 from datetime import datetime, timezone
 
-def parse_vehicle_location_data(data: list) -> list:
-    parsed_data = []
+def parse_realtime_data(data: list) -> list:
+    """Processes realtime data according to database requirements
+
+    Args: 
+        data: entity list
+
+    Returns:
+        [list of trips, list of vehicles, list of alerts]
+    """
+
+    parsed_trips = []
+    parsed_vehicles = []
+    parsed_alerts = []
     update_time = datetime.now(timezone.utc).isoformat()
     for entity in data:
         # if label and license plate both empty, vehicle is irrelevant
@@ -15,6 +26,8 @@ def parse_vehicle_location_data(data: list) -> list:
                 "updated_at": update_time,
                 "raw_data": nested_entity
             }
+
+            parsed_trips.append(parsed_entity)
         elif (entity.get("vehicle")):
             # TODO add more fallbacks later
 
@@ -33,6 +46,8 @@ def parse_vehicle_location_data(data: list) -> list:
                 "updated_at": update_time,
                 "raw_data": nested_entity
             }
+
+            parsed_vehicles.append(parsed_entity)
         elif (entity.get("alert")):
             nested_entity = entity["alert"]
             parsed_entity = {
@@ -41,6 +56,7 @@ def parse_vehicle_location_data(data: list) -> list:
                 "raw_data": nested_entity
             }
 
-        
-        parsed_data.append(parsed_entity)
-    return parsed_data
+            parsed_alerts.append(parsed_entity)
+    return [parsed_trips, parsed_vehicles, parsed_alerts]
+
+parse_realtime_data
