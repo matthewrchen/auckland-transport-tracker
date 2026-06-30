@@ -40,10 +40,16 @@ def parse_realtime_data(data: list) -> list:
                 continue
             parsed_entity = {
                 "vehicle_id": entity["id"],
+                "vehicle_label": nested_entity["vehicle"]["label"],
+                "vehicle_license_plate" : nested_entity["vehicle"].get("license_plate"),
                 "trip_id": nested_entity["trip"]["trip_id"],
                 "route_id": nested_entity["trip"]["route_id"],
-                "updated_at": update_time,
-                "raw_data": nested_entity
+                "latitude": nested_entity["position"]["latitude"],
+                "longitude": nested_entity["position"]["longitude"],
+                "bearing": nested_entity["position"].get("bearing"),
+                "odometer": nested_entity["position"].get("odometer"),
+                "speed": nested_entity["position"]["speed"],
+                "updated_at": update_time
             }
 
             parsed_vehicles.append(parsed_entity)
