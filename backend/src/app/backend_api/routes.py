@@ -3,7 +3,7 @@ from backend_api.manager import websocket_manager
 
 router = APIRouter()
 
-@router.websocket("/ws/buses")
+@router.websocket("/ws/vehicles")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket_manager.connect(websocket)
     print("[ROUTE] User connected")
@@ -13,7 +13,7 @@ async def websocket_endpoint(websocket: WebSocket):
         latest_data = await repository.get_vehicle_locations()
 
         print("[ROUTE] Sending snapshot")
-        await websocket.send_json({"type": "snapshot", "buses": latest_data})
+        await websocket.send_json({"type": "snapshot", "vehicles": latest_data})
 
         while True:
             await websocket.receive_text()

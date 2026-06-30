@@ -17,10 +17,7 @@ export default function Map() {
   });
 
   const [modalOpen, setModal] = useState(false);
-
-  const [busId, setBusId] = useState(null);
-  const [busLabel, setBusLabel] = useState(null);
-  const [busLicensePlate, setBusLicensePlate] = useState(null);
+  const [vehicleProperties, setVehicleProperties] = useState(null);
 
   useEffect(() => {
     mapRef.current = new mapboxgl.Map({
@@ -48,9 +45,7 @@ export default function Map() {
         type: 'click',
         target: { layerId: 'buses-layer' },
         handler: (feature) => {
-          setBusId(feature.feature.properties['busId'])
-          setBusLabel(feature.feature.properties['busLabel'])
-          setBusLicensePlate(feature.feature.properties['busLicensePlate'])
+          setVehicleProperties(feature.feature.properties)
 
           setModal(true);
         }
@@ -66,7 +61,7 @@ export default function Map() {
   }, []);
 
   const connectWebSocket = () => {
-    const ws = new WebSocket('ws://127.0.0.1:8000/ws/buses');
+    const ws = new WebSocket('ws://127.0.0.1:8000/ws/vehicles');
     wsRef.current = ws;
 
     ws.onopen = () => {
@@ -92,18 +87,18 @@ export default function Map() {
     }
   };
 
-  const updateBuses = (busData) => {
-    const buses = busData['buses']
-    geojsonRef.current.features = buses.map(bus => ({
+  const updateBuses = (vehicleData) => {
+    const vehicles = vehicleData['vehicles']
+    geojsonRef.current.features = vehicles.map(vehicle => ({
       type: 'Feature',
       geometry: {
         type: 'Point',
-        coordinates: [bus['vehicle_longitude'], bus['vehicle_latitude']]
+        coordinates: [vehicle['longitude'], vehicle['latitude']]
       },
       properties: {
-        busId: bus['vehicle_id'],
-        busLabel: bus['vehicle_label'],
-        busLicensePlate: bus['vehicle_license_plate']
+        vehicleId: vehicle['vehicle_id'],
+        vehicleLabel: vehicle['vehicle_label'],
+        vehicleLicensePlate: vehicle['vehicle_license_plate']
       }
     }));
     if (mapRef.current.getSource('buses-source')) {
@@ -115,7 +110,7 @@ export default function Map() {
     <>
       <div ref={mapContainerRef} className={styles.map}></div>
 
-      {modalOpen && <VehicleInfoModal vehicleID={busId} vehicleLabel={busLabel} vehicleLicensePlate={busLicensePlate} closeModal={() => setModal(false)} />}
+      {modalOpen && <VehicleInfoModal vehicleProperties={vehicleProperties} closeModal={() => setModal(false)} />}
     </>
   );
 }
