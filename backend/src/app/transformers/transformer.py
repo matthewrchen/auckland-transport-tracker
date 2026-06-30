@@ -40,9 +40,8 @@ def parse_realtime_data(data: list) -> list:
                 continue
             parsed_entity = {
                 "vehicle_id": entity["id"],
-                "trip_id": nested_entity.get("trip", {}).get("trip_id"),
-                "route_id": nested_entity.get("trip", {}).get("route_id"),
-                "is_active": True,
+                "trip_id": nested_entity["trip"]["trip_id"],
+                "route_id": nested_entity["trip"]["route_id"],
                 "updated_at": update_time,
                 "raw_data": nested_entity
             }
