@@ -48,7 +48,7 @@ def parse_realtime_data(data: list) -> list:
                 "longitude": nested_entity["position"]["longitude"],
                 "bearing": nested_entity["position"].get("bearing"),
                 "odometer": nested_entity["position"].get("odometer"),
-                "speed": nested_entity["position"]["speed"],
+                "speed": int(nested_entity["position"]["speed"]),
                 "updated_at": update_time
             }
 
