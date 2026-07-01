@@ -98,7 +98,8 @@ export default function Map() {
       properties: {
         vehicleId: vehicle['vehicle_id'],
         vehicleLabel: vehicle['vehicle_label'],
-        vehicleLicensePlate: vehicle['vehicle_license_plate']
+        vehicleLicensePlate: vehicle['vehicle_license_plate'],
+        vehicleRoute: vehicle["route_id"]
       }
     }));
     if (mapRef.current.getSource('buses-source')) {

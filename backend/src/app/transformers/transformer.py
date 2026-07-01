@@ -44,6 +44,7 @@ def parse_realtime_data(data: list) -> list:
                 "vehicle_license_plate" : nested_entity["vehicle"].get("license_plate"),
                 "trip_id": nested_entity["trip"]["trip_id"],
                 "route_id": nested_entity["trip"]["route_id"],
+                "occupancy_status": nested_entity.get("occupancy_status"),
                 "latitude": nested_entity["position"]["latitude"],
                 "longitude": nested_entity["position"]["longitude"],
                 "bearing": nested_entity["position"].get("bearing"),

@@ -14,5 +14,34 @@ class ATClient:
         data = response.json()
         return data.get("response").get("entity")
     
-    async def get_vehicle_locations(self) -> list:
+    async def get_combined_feed(self) -> list:
+        """ Gets all realtime entities (trip, vehicle, alert)
+
+        Returns:
+            [list of trip, vehicle, alert entities]
+        """
+        return await self._get_realtime_data("/realtime/legacy/")
+    
+    async def get_trip_updates(self) -> list:
+        """ Gets realtime trip update entities
+
+        Returns:
+            [list of trip entities]
+        """
+        return await self._get_realtime_data("/realtime/legacy/tripupdates")
+
+    async def get_vehicle_updates(self) -> list:
+        """ Gets realtime vehicle update entities
+
+        Returns:
+            [list of vehicle entities]
+        """
         return await self._get_realtime_data("/realtime/legacy/vehiclelocations")
+    
+    async def get_alert_updates(self) -> list:
+        """ Gets realtime alert update entities
+
+        Returns:
+            [list of alert entities]
+        """
+        return await self._get_realtime_data("/realtime/legacy/servicealerts")

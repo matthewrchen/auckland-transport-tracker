@@ -10,7 +10,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
     try:
         repository = websocket.app.state.repository
-        latest_data = await repository.get_vehicle_locations()
+        latest_data = await repository.get_realtime_vehicles()
 
         print("[ROUTE] Sending snapshot")
         await websocket.send_json({"type": "snapshot", "vehicles": latest_data})
