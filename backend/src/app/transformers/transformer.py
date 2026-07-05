@@ -21,10 +21,10 @@ def parse_realtime_data(data: list) -> list:
         if (entity.get("trip_update")):
             nested_entity = entity["trip_update"]
             parsed_entity = {
-                "trip_id": nested_entity["trip"]["trip_id"],
+                "trip_id": entity["id"],
                 "route_id": nested_entity["trip"]["route_id"],
-                "updated_at": update_time,
-                "raw_data": nested_entity
+                "stop_id": nested_entity.get("stop_time_update", {}).get("stop_id"),
+                "updated_at": update_time
             }
 
             parsed_trips.append(parsed_entity)
