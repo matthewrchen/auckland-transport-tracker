@@ -58,8 +58,15 @@ def parse_realtime_data(data: list) -> list:
             nested_entity = entity["alert"]
             parsed_entity = {
                 "alert_id": entity["id"],
-                "updated_at": update_time,
-                "raw_data": nested_entity
+                "cause": nested_entity["cause"],
+                "effect": nested_entity["effect"],
+                "header_text": nested_entity["header_text"]["translation"][0]["text"],
+                "effect_text": nested_entity.get("effect_detail", {}).get("translation", [{}])[0].get("text"),
+                "description_text": nested_entity["description_text"]["translation"][0]["text"],
+                "severity_level": nested_entity.get("severity_level"),
+                "active_period": nested_entity["active_period"],
+                "affected_stops": nested_entity["informed_entity"],
+                "updated_at": update_time
             }
 
             parsed_alerts.append(parsed_entity)
