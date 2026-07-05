@@ -93,13 +93,13 @@ export default function Map() {
       type: 'Feature',
       geometry: {
         type: 'Point',
-        coordinates: [vehicle['longitude'], vehicle['latitude']]
+        coordinates: [vehicle['vehicle_longitude'], vehicle['vehicle_latitude']]
       },
       properties: {
-        vehicleId: vehicle['vehicle_id'],
         vehicleLabel: vehicle['vehicle_label'],
         vehicleLicensePlate: vehicle['vehicle_license_plate'],
-        vehicleRoute: vehicle["route_id"]
+        vehicleRoute: vehicle['vehicle_route'],
+        vehicleHeadsign: vehicle['vehicle_headsign']
       }
     }));
     if (mapRef.current.getSource('buses-source')) {

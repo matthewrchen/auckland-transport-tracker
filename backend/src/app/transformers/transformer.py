@@ -71,5 +71,3 @@ def parse_realtime_data(data: list) -> list:
 
             parsed_alerts.append(parsed_entity)
     return [parsed_trips, parsed_vehicles, parsed_alerts]
-
-parse_realtime_data

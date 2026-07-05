@@ -10,7 +10,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
     try:
         repository = websocket.app.state.repository
-        latest_data = await repository.get_realtime_vehicles()
+        latest_data = await repository.get_view_realtime_vehicles()
 
         print("[ROUTE] Sending snapshot")
         await websocket.send_json({"type": "snapshot", "vehicles": latest_data})
@@ -22,4 +22,5 @@ async def websocket_endpoint(websocket: WebSocket):
         websocket_manager.disconnect(websocket)
 
     except Exception as e:
+        print(e)
         websocket_manager.disconnect(websocket)

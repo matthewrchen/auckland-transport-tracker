@@ -28,3 +28,8 @@ class ATRepository:
     async def upsert_realtime_alerts(self, data: list):
         response = await (self.database.table("realtime_alerts")
                     .upsert(data).execute())
+        
+    async def get_view_realtime_vehicles(self):
+        response = await (self.database.table("view_realtime_vehicles")
+                    .select("*").execute())
+        return response.data
