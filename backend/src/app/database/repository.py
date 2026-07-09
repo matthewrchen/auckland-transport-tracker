@@ -51,3 +51,8 @@ class ATRepository:
         response = await (self.database.table("view_realtime_vehicles")
                     .select("*").execute())
         return response.data
+    
+    async def get_view_static_stops(self):
+        response = await (self.database.table("view_static_stops")
+                    .select("*").execute())
+        return response.data

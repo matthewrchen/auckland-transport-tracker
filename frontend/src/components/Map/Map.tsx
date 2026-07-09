@@ -23,11 +23,27 @@ type VehicleData = {
   vehicles: VehicleRecord[];
 };
 
+type StopRecord = {
+  stop_longitude: number;
+  stop_latitude: number;
+  stop_name?: string;
+  stop_code?: number;
+  [key: string]: any;
+};
+
+type StopData = {
+  stops: StopRecord[];
+};
+
 export default function Map() {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
-  const geojsonRef = useRef<any>({
+  const vehicleGeojsonRef = useRef<any>({
+    type: 'FeatureCollection',
+    features: []
+  });
+  const stopGeojsonRef = useRef<any>({
     type: 'FeatureCollection',
     features: []
   });
@@ -51,7 +67,8 @@ export default function Map() {
     mapRef.current = map;
 
     map.on('load', () => {
-      map.addSource('buses-source', { type: 'geojson', data: geojsonRef.current });
+
+      map.addSource('buses-source', { type: 'geojson', data: vehicleGeojsonRef.current });
       map.addLayer({
         id: 'buses-layer',
         type: 'circle',
@@ -63,6 +80,20 @@ export default function Map() {
           'circle-stroke-color': '#fff'
         }
       });
+
+      map.addSource('stops-source', { type: 'geojson', data: stopGeojsonRef.current });
+      map.addLayer({
+        id: 'stops-layer',
+        type: 'circle',
+        source: 'stops-source',
+        paint: {
+          'circle-radius': 4,
+          'circle-color': '#bf0000',
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#fff'
+        }
+      });
+
       map.addInteraction('click', {
         type: 'click',
         target: { layerId: 'buses-layer' },
@@ -92,8 +123,13 @@ export default function Map() {
 
     ws.onmessage = (event) => {
       try {
-        const rawPayload: VehicleData = JSON.parse(event.data);
-        updateBuses(rawPayload);
+        const rawPayload: VehicleData | StopData = JSON.parse(event.data);
+        if ('vehicles' in rawPayload) {
+          updateBuses(rawPayload);
+        }
+        if ('stops' in rawPayload) {
+          loadStops(rawPayload);
+        }
       } catch (error) {
         console.error('[FRONTEND] Error parsing API frame: ', error);
       }
@@ -111,7 +147,7 @@ export default function Map() {
 
   const updateBuses = (vehicleData: VehicleData) => {
     const vehicles = vehicleData['vehicles'];
-    geojsonRef.current.features = vehicles.map(vehicle => ({
+    vehicleGeojsonRef.current.features = vehicles.map(vehicle => ({
       type: 'Feature',
       geometry: {
         type: 'Point',
@@ -128,7 +164,28 @@ export default function Map() {
     const source = mapRef.current?.getSource('buses-source') as mapboxgl.GeoJSONSource | undefined;
 
     if (source) {
-      source.setData(geojsonRef.current);
+      source.setData(vehicleGeojsonRef.current);
+    }
+  };
+
+  const loadStops = (stopData: StopData) => {
+    const stops = stopData['stops'];
+    stopGeojsonRef.current.features = stops.map(stop => ({
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [stop['stop_longitude'], stop['stop_latitude']]
+      },
+      properties: {
+        stopName: stop['stop_name'],
+        stopCode: stop['stop_code']
+      }
+    }));
+
+    const source = mapRef.current?.getSource('stops-source') as mapboxgl.GeoJSONSource | undefined;
+
+    if (source) {
+      source.setData(stopGeojsonRef.current)
     }
   };
 
