@@ -39,7 +39,8 @@ async def vehicle_polling(app: FastAPI):
             await app.state.repository.upsert_realtime_vehicles(transformed_data[1])
 
             print("[POLLER] Sending data to users")
-            payload = {"type": "live_update", "vehicles": transformed_data[1]}
+            latest_data = await app.state.repository.get_view_realtime_vehicles()
+            payload = {"type": "live_update", "vehicles": latest_data}
             await websocket_manager.broadcast_to_all(payload)
 
             await app.state.repository.clean_realtime_vehicles()
