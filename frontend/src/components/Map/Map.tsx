@@ -4,6 +4,7 @@ import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
 import VehicleInfoModal from '../VehicleInfoModal/VehicleInfoModal'
+import StopInfoModal from '../StopInfoModal/StopInfoModal'
 
 import styles from './Map.module.css'
 
@@ -22,6 +23,8 @@ type VehicleRecord = {
 type VehicleData = {
   vehicles: VehicleRecord[];
 };
+
+type StopProperties = Record<string, any>;
 
 type StopRecord = {
   stop_longitude: number;
@@ -48,8 +51,10 @@ export default function Map() {
     features: []
   });
 
-  const [modalOpen, setModal] = useState(false);
+  const [vehicleModalOpen, setVehicleModal] = useState(false);
   const [vehicleProperties, setVehicleProperties] = useState<VehicleProperties>({});
+  const [stopModalOpen, setStopModal] = useState(false);
+  const [stopProperties, setStopProperties] = useState<StopProperties>({});
 
   useEffect(() => {
     if (!mapContainerRef.current) {
@@ -68,11 +73,11 @@ export default function Map() {
 
     map.on('load', () => {
 
-      map.addSource('buses-source', { type: 'geojson', data: vehicleGeojsonRef.current });
+      map.addSource('vehicles-source', { type: 'geojson', data: vehicleGeojsonRef.current });
       map.addLayer({
-        id: 'buses-layer',
+        id: 'vehicles-layer',
         type: 'circle',
-        source: 'buses-source',
+        source: 'vehicles-source',
         paint: {
           'circle-radius': 8,
           'circle-color': '#007cbf',
@@ -94,13 +99,22 @@ export default function Map() {
         }
       });
 
-      map.addInteraction('click', {
+      map.addInteraction('clickVehicle', {
         type: 'click',
-        target: { layerId: 'buses-layer' },
+        target: { layerId: 'vehicles-layer' },
         handler: (feature: mapboxgl.InteractionEvent) => {
           setVehicleProperties((feature.feature?.properties as VehicleProperties | undefined) ?? {});
 
-          setModal(true);
+          setVehicleModal(true);
+        }
+      });
+      map.addInteraction('clickStop', {
+        type: 'click',
+        target: { layerId: 'stops-layer' },
+        handler: (feature: mapboxgl.InteractionEvent) => {
+          setStopProperties((feature.feature?.properties as StopProperties | undefined) ?? {});
+
+          setStopModal(true);
         }
       });
 
@@ -161,7 +175,7 @@ export default function Map() {
       }
     }));
 
-    const source = mapRef.current?.getSource('buses-source') as mapboxgl.GeoJSONSource | undefined;
+    const source = mapRef.current?.getSource('vehicles-source') as mapboxgl.GeoJSONSource | undefined;
 
     if (source) {
       source.setData(vehicleGeojsonRef.current);
@@ -193,7 +207,9 @@ export default function Map() {
     <>
       <div ref={mapContainerRef} className={styles.map}></div>
 
-      {modalOpen && <VehicleInfoModal vehicleProperties={vehicleProperties} closeModal={() => setModal(false)} />}
+      {vehicleModalOpen && <VehicleInfoModal vehicleProperties={vehicleProperties} closeModal={() => setVehicleModal(false)} />}
+
+      {stopModalOpen && <StopInfoModal stopProperties={stopProperties} closeModal={() => setStopModal(false)} />}
     </>
   );
 }
