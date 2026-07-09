@@ -7,30 +7,52 @@ import VehicleInfoModal from '../VehicleInfoModal/VehicleInfoModal'
 
 import styles from './Map.module.css'
 
+type VehicleProperties = Record<string, any>;
+
+type VehicleRecord = {
+  vehicle_longitude: number;
+  vehicle_latitude: number;
+  vehicle_label?: string;
+  vehicle_license_plate?: string;
+  vehicle_route?: string;
+  vehicle_headsign?: string;
+  [key: string]: any;
+};
+
+type VehicleData = {
+  vehicles: VehicleRecord[];
+};
+
 export default function Map() {
-  const mapRef = useRef();
-  const mapContainerRef = useRef();
-  const wsRef = useRef();
-  const geojsonRef = useRef({
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+  const geojsonRef = useRef<any>({
     type: 'FeatureCollection',
     features: []
   });
 
   const [modalOpen, setModal] = useState(false);
-  const [vehicleProperties, setVehicleProperties] = useState(null);
+  const [vehicleProperties, setVehicleProperties] = useState<VehicleProperties>({});
 
   useEffect(() => {
-    mapRef.current = new mapboxgl.Map({
+    if (!mapContainerRef.current) {
+      return;
+    }
+
+    const map = new mapboxgl.Map({
       accessToken: import.meta.env.VITE_DEVELOPMENT_TOKEN,
       container: mapContainerRef.current,
 
-      center: [174.76, -36.86], 
+      center: [174.76, -36.86],
       zoom: 11.4
     });
 
-    mapRef.current.on('load', () => {
-      mapRef.current.addSource('buses-source', {type: 'geojson', data: geojsonRef.current});
-      mapRef.current.addLayer({
+    mapRef.current = map;
+
+    map.on('load', () => {
+      map.addSource('buses-source', { type: 'geojson', data: geojsonRef.current });
+      map.addLayer({
         id: 'buses-layer',
         type: 'circle',
         source: 'buses-source',
@@ -41,11 +63,11 @@ export default function Map() {
           'circle-stroke-color': '#fff'
         }
       });
-      mapRef.current.addInteraction('click', {
+      map.addInteraction('click', {
         type: 'click',
         target: { layerId: 'buses-layer' },
-        handler: (feature) => {
-          setVehicleProperties(feature.feature.properties)
+        handler: (feature: mapboxgl.InteractionEvent) => {
+          setVehicleProperties((feature.feature?.properties as VehicleProperties | undefined) ?? {});
 
           setModal(true);
         }
@@ -55,9 +77,9 @@ export default function Map() {
     });
 
     return () => {
-      if (mapRef.current) mapRef.current.remove();
-      if (wsRef.current) wsRef.current.close();
-    }
+      map.remove();
+      wsRef.current?.close();
+    };
   }, []);
 
   const connectWebSocket = () => {
@@ -70,8 +92,8 @@ export default function Map() {
 
     ws.onmessage = (event) => {
       try {
-        const rawPayload = JSON.parse(event.data);
-        updateBuses(rawPayload)
+        const rawPayload: VehicleData = JSON.parse(event.data);
+        updateBuses(rawPayload);
       } catch (error) {
         console.error('[FRONTEND] Error parsing API frame: ', error);
       }
@@ -79,16 +101,16 @@ export default function Map() {
 
     ws.onclose = (e) => {
       console.log(`[FRONTEND] Websocket closed. Code: ${e.code}`);
-    }
+    };
 
     ws.onerror = (err) => {
       console.error('[FRONTEND] Websocket encountered error: ', err);
       ws.close();
-    }
+    };
   };
 
-  const updateBuses = (vehicleData) => {
-    const vehicles = vehicleData['vehicles']
+  const updateBuses = (vehicleData: VehicleData) => {
+    const vehicles = vehicleData['vehicles'];
     geojsonRef.current.features = vehicles.map(vehicle => ({
       type: 'Feature',
       geometry: {
@@ -102,8 +124,11 @@ export default function Map() {
         vehicleHeadsign: vehicle['vehicle_headsign']
       }
     }));
-    if (mapRef.current.getSource('buses-source')) {
-      mapRef.current.getSource('buses-source').setData(geojsonRef.current);
+
+    const source = mapRef.current?.getSource('buses-source') as mapboxgl.GeoJSONSource | undefined;
+
+    if (source) {
+      source.setData(geojsonRef.current);
     }
   };
 
