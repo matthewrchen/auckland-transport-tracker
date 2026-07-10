@@ -17,6 +17,7 @@ export default function VehicleInfoModal( { vehicleProperties, closeModal }: pro
         <h2 className={styles.modalText}>{vehicleProperties["vehicleLabel"] ? "Vehicle Label: " + vehicleProperties["vehicleLabel"] : "Vehicle Label: Placeholder"}</h2>
         <h2 className={styles.modalText}>{vehicleProperties["vehicleLicensePlate"] ? "Vehicle License Plate: " + vehicleProperties["vehicleLicensePlate"] : "Vehicle License Plate: Placeholder"}</h2>
         <h2 className={styles.modalText}>{vehicleProperties["vehicleHeadsign"] ? "Vehicle Route: " + vehicleProperties["vehicleHeadsign"] : "Vehicle Headsign: Placeholder"}</h2>
+        <h2 className={styles.modalText}>{vehicleProperties["vehicleNextStop"] ? "Next Stop: " + vehicleProperties["vehicleNextStop"] : "Next Stop: Placeholder"}</h2>
       </div>
     </div>
   );

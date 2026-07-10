@@ -171,7 +171,8 @@ export default function Map() {
         vehicleLabel: vehicle['vehicle_label'],
         vehicleLicensePlate: vehicle['vehicle_license_plate'],
         vehicleRoute: vehicle['vehicle_route'],
-        vehicleHeadsign: vehicle['vehicle_headsign']
+        vehicleHeadsign: vehicle['vehicle_headsign'],
+        vehicleNextStop: vehicle['vehicle_next_stop']
       }
     }));
 
