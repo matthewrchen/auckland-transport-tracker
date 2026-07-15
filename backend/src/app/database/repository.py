@@ -56,3 +56,8 @@ class ATRepository:
         response = await (self.database.table("view_static_stops")
                     .select("*").execute())
         return response.data
+    
+    async def get_function_upcoming_trips(self, stop_id):
+        response = await (self.database.rpc("get_trips_for_stop", {"target_stop_id": stop_id})
+                    .execute())
+        return response.data

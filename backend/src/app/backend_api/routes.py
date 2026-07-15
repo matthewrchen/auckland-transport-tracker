@@ -18,7 +18,8 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.send_json({"type": "snapshot", "stops": latest_stop_data})
 
         while True:
-            await websocket.receive_text()
+            data = await websocket.receive_text()
+            print(f"Frontend sent: {data}")
     
     except WebSocketDisconnect:
         websocket_manager.disconnect(websocket)
