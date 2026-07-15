@@ -114,6 +114,7 @@ export default function Map() {
         handler: (feature: mapboxgl.InteractionEvent) => {
           setStopProperties((feature.feature?.properties as StopProperties | undefined) ?? {});
 
+          sendMessage({"stop_id": "placeholder"});
           setStopModal(true);
         }
       });
@@ -158,6 +159,16 @@ export default function Map() {
       ws.close();
     };
   };
+
+  const sendMessage = (payload: any) => { // maybe add type object for payload later
+    const ws = wsRef.current;
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify(payload));
+      console.log("Message sent");
+    } else {
+      console.log("Websocket not open");
+    }
+  }
 
   const updateBuses = (vehicleData: VehicleData) => {
     const vehicles = vehicleData['vehicles'];
