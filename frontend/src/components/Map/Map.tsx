@@ -114,7 +114,7 @@ export default function Map() {
         handler: (feature: mapboxgl.InteractionEvent) => {
           setStopProperties((feature.feature?.properties as StopProperties | undefined) ?? {});
 
-          sendMessage({"stop_id": "placeholder"});
+          sendMessage({"stop_id": feature.feature?.properties.stopId});
           setStopModal(true);
         }
       });
@@ -144,6 +144,9 @@ export default function Map() {
         }
         if ('stops' in rawPayload) {
           loadStops(rawPayload);
+        }
+        if ('trips' in rawPayload) {
+          console.log(rawPayload);
         }
       } catch (error) {
         console.error('[FRONTEND] Error parsing API frame: ', error);
@@ -203,6 +206,7 @@ export default function Map() {
         coordinates: [stop['stop_longitude'], stop['stop_latitude']]
       },
       properties: {
+        stopId: stop['stop_id'],
         stopName: stop['stop_name'],
         stopCode: stop['stop_code']
       }

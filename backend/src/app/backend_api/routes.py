@@ -20,7 +20,7 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_json()
             latest_trip_data = await repository.get_function_upcoming_trips(data["stop_id"])
-            print(latest_trip_data)
+            await websocket.send_json({"type": "snapshot", "trips": latest_trip_data})
     
     except WebSocketDisconnect:
         websocket_manager.disconnect(websocket)
