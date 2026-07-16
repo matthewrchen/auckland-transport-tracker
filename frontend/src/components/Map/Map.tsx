@@ -17,6 +17,7 @@ type VehicleRecord = {
   vehicle_license_plate?: string;
   vehicle_route?: string;
   vehicle_headsign?: string;
+  vehicle_next_stop?: string;
   [key: string]: any;
 };
 
@@ -29,6 +30,7 @@ type StopProperties = Record<string, any>;
 type StopRecord = {
   stop_longitude: number;
   stop_latitude: number;
+  stop_id?: string;
   stop_name?: string;
   stop_code?: number;
   [key: string]: any;
@@ -37,6 +39,18 @@ type StopRecord = {
 type StopData = {
   stops: StopRecord[];
 };
+
+export type TripRecord = {
+  trip_id?: string;
+  arrival_time?: string;
+  route_long_name?: string;
+  route_short_name?: string;
+  [key: string]: any;
+}
+
+type TripData = {
+  trips: TripRecord[];
+}
 
 export default function Map() {
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -55,6 +69,7 @@ export default function Map() {
   const [vehicleProperties, setVehicleProperties] = useState<VehicleProperties>({});
   const [stopModalOpen, setStopModal] = useState(false);
   const [stopProperties, setStopProperties] = useState<StopProperties>({});
+  const [upcomingTrips, setUpcomingTrips] = useState<TripRecord[]>([]);
 
   useEffect(() => {
     if (!mapContainerRef.current) {
@@ -138,7 +153,7 @@ export default function Map() {
 
     ws.onmessage = (event) => {
       try {
-        const rawPayload: VehicleData | StopData = JSON.parse(event.data);
+        const rawPayload: VehicleData | StopData | TripData = JSON.parse(event.data);
         if ('vehicles' in rawPayload) {
           updateBuses(rawPayload);
         }
@@ -146,7 +161,7 @@ export default function Map() {
           loadStops(rawPayload);
         }
         if ('trips' in rawPayload) {
-          console.log(rawPayload);
+          updateTrips(rawPayload)
         }
       } catch (error) {
         console.error('[FRONTEND] Error parsing API frame: ', error);
@@ -219,13 +234,18 @@ export default function Map() {
     }
   };
 
+  const updateTrips = (tripData: TripData) => {
+    const trips = tripData['trips'];
+    setUpcomingTrips(trips);
+  };
+
   return (
     <>
       <div ref={mapContainerRef} className={styles.map}></div>
 
       {vehicleModalOpen && <VehicleInfoModal vehicleProperties={vehicleProperties} closeModal={() => setVehicleModal(false)} />}
 
-      {stopModalOpen && <StopInfoModal stopProperties={stopProperties} closeModal={() => setStopModal(false)} />}
+      {stopModalOpen && <StopInfoModal stopProperties={stopProperties} upcomingTrips={upcomingTrips} closeModal={() => setStopModal(false)} />}
     </>
   );
 }
