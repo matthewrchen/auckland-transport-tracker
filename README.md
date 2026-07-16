@@ -8,4 +8,10 @@ Auckland Transport Tracker tracks and plots the location of all Auckland Transpo
 - **React**
 - **Mapbox GL JS**
 - **FastAPI**
+- **PostgreSQL**
 - **Supabase**
+
+## 📝 Project structure
+- ```database```: Not present in repository currently, a PostgreSQL database hosted via Supabase  
+- ```backend```: FastAPI server that integrates Auckland Transport Developer API and manages database operations  
+- ```frontend```: React web application showing all the locations of buses and other transport information
